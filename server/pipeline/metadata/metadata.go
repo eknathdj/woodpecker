@@ -21,19 +21,27 @@ import (
 
 	"go.woodpecker-ci.org/woodpecker/v3/pipeline/frontend/builder"
 	"go.woodpecker-ci.org/woodpecker/v3/pipeline/frontend/metadata"
+	forge_types "go.woodpecker-ci.org/woodpecker/v3/server/forge/types"
 	"go.woodpecker-ci.org/woodpecker/v3/server/model"
 	"go.woodpecker-ci.org/woodpecker/v3/version"
 )
 
+// ServerForge is the part of a forge the pipeline metadata is built from.
+type ServerForge interface {
+	metadata.ServerForge
+	// Config returns the generic configuration of the forge.
+	Config() forge_types.ForgeConfig
+}
+
 type ServerMetadata struct {
-	forge            metadata.ServerForge
+	forge            ServerForge
 	repo             *model.Repo
 	pipeline         *model.Pipeline
 	previousPipeline *model.Pipeline
 	sysURL           string
 }
 
-func NewServerMetadata(forge metadata.ServerForge, repo *model.Repo, pipeline, previousPipeline *model.Pipeline, sysURL string) *ServerMetadata {
+func NewServerMetadata(forge ServerForge, repo *model.Repo, pipeline, previousPipeline *model.Pipeline, sysURL string) *ServerMetadata {
 	return &ServerMetadata{
 		forge:            forge,
 		repo:             repo,
@@ -52,7 +60,7 @@ func (s *ServerMetadata) GetWorkflowMetadata(workflow *builder.Workflow) metadat
 	if s.forge != nil {
 		fForge = metadata.Forge{
 			Type: s.forge.Name(),
-			Host: hostFromURL(s.forge.URL()),
+			Host: s.forge.Config().Host,
 			URL:  s.forge.URL(),
 		}
 	}

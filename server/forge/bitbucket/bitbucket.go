@@ -80,6 +80,11 @@ func (c *config) URL() string {
 	return c.url
 }
 
+// Config returns the generic configuration of a configured forge.
+func (c *config) Config() forge_types.ForgeConfig {
+	return forge_types.ForgeConfig{Host: forge_types.HostFromURL(c.url)}
+}
+
 // Login authenticates an account with Bitbucket using the oauth2 protocol. The
 // Bitbucket account details are returned when the user is successfully authenticated.
 func (c *config) Login(ctx context.Context, req *forge_types.OAuthRequest) (*model.User, string, error) {

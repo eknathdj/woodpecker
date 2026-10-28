@@ -88,6 +88,11 @@ func (c *Gitea) URL() string {
 	return c.url
 }
 
+// Config returns the generic configuration of a configured forge.
+func (c *Gitea) Config() forge_types.ForgeConfig {
+	return forge_types.ForgeConfig{Host: forge_types.HostFromURL(c.url)}
+}
+
 func (c *Gitea) oauth2Config(ctx context.Context) (*oauth2.Config, context.Context) {
 	publicOAuthURL := c.oAuthHost
 	if publicOAuthURL == "" {

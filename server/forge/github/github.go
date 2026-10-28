@@ -104,6 +104,11 @@ func (c *client) URL() string {
 	return c.url
 }
 
+// Config returns the generic configuration of a configured forge.
+func (c *client) Config() forge_types.ForgeConfig {
+	return forge_types.ForgeConfig{Host: forge_types.HostFromURL(c.url)}
+}
+
 // Login authenticates the session and returns the forge user details.
 func (c *client) Login(ctx context.Context, req *forge_types.OAuthRequest) (*model.User, string, error) {
 	config := c.newConfig()

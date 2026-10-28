@@ -98,6 +98,14 @@ func TestRPCRoundTrip(t *testing.T) {
 		assert.Equal(t, "https://forge.example.com", f.URL())
 	})
 
+	t.Run("config", func(t *testing.T) {
+		impl := forge_mocks.NewMockForge(t)
+		impl.On("Config").Return(types.ForgeConfig{Host: "forge.example.com/sub"})
+
+		f := newRPCForge(t, impl)
+		assert.Equal(t, types.ForgeConfig{Host: "forge.example.com/sub"}, f.Config())
+	})
+
 	t.Run("login", func(t *testing.T) {
 		impl := forge_mocks.NewMockForge(t)
 		impl.On("Login", mock.Anything, &types.OAuthRequest{Code: "code", State: "state"}).Return(user, "/redirect", nil)

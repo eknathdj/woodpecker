@@ -89,6 +89,11 @@ func (g *GitLab) URL() string {
 	return g.url
 }
 
+// Config returns the generic configuration of a configured forge.
+func (g *GitLab) Config() forge_types.ForgeConfig {
+	return forge_types.ForgeConfig{Host: forge_types.HostFromURL(g.url)}
+}
+
 func (g *GitLab) oauth2Config(ctx context.Context) (*oauth2.Config, context.Context) {
 	publicOAuthURL := g.oAuthHost
 	if publicOAuthURL == "" {

@@ -22,6 +22,7 @@ import (
 	"go.woodpecker-ci.org/woodpecker/v3/pipeline/frontend/builder"
 	"go.woodpecker-ci.org/woodpecker/v3/pipeline/frontend/metadata"
 	"go.woodpecker-ci.org/woodpecker/v3/server/forge/mocks"
+	forge_types "go.woodpecker-ci.org/woodpecker/v3/server/forge/types"
 	"go.woodpecker-ci.org/woodpecker/v3/server/model"
 )
 
@@ -29,10 +30,11 @@ func TestGetWorkflowMetadata(t *testing.T) {
 	forge := mocks.NewMockForge(t)
 	forge.On("Name").Return("gitea")
 	forge.On("URL").Return("https://gitea.com")
+	forge.On("Config").Return(forge_types.ForgeConfig{Host: "gitea.com"})
 
 	testCases := []struct {
 		name             string
-		forge            metadata.ServerForge
+		forge            ServerForge
 		repo             *model.Repo
 		pipeline, prev   *model.Pipeline
 		workflow         *builder.Workflow
@@ -186,4 +188,16 @@ func TestGetWorkflowMetadata(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetWorkflowMetadataForgeHostFromConfig(t *testing.T) {
+	forge := mocks.NewMockForge(t)
+	forge.On("Name").Return("gitea")
+	forge.On("URL").Return("https://example.com/gitea")
+	forge.On("Config").Return(forge_types.ForgeConfig{Host: "example.com/gitea"})
+
+	result := NewServerMetadata(forge, nil, nil, nil, "").GetWorkflowMetadata(nil)
+
+	assert.Equal(t, "example.com/gitea", result.Forge.Host)
+	assert.Equal(t, "example.com/gitea", result.Environ()["CI_FORGE_HOST"])
 }

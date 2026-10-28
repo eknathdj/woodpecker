@@ -83,6 +83,19 @@ func (g *RPC) URL() string {
 	return resp
 }
 
+func (g *RPC) Config() types.ForgeConfig {
+	var resp types.ForgeConfig
+	var jsonResp []byte
+	if err := g.client.Call("Plugin.Config", []byte{}, &jsonResp); err != nil {
+		log.Error().Err(err).Msg("addon Plugin.Config call failed")
+		return resp
+	}
+	if err := json.Unmarshal(jsonResp, &resp); err != nil {
+		log.Error().Err(err).Msg("addon Plugin.Config unmarshal failed")
+	}
+	return resp
+}
+
 func (g *RPC) Login(_ context.Context, r *types.OAuthRequest) (*model.User, string, error) {
 	args, err := json.Marshal(r)
 	if err != nil {

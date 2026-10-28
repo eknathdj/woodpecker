@@ -90,6 +90,11 @@ func (c *Forgejo) URL() string {
 	return c.url
 }
 
+// Config returns the generic configuration of a configured forge.
+func (c *Forgejo) Config() forge_types.ForgeConfig {
+	return forge_types.ForgeConfig{Host: forge_types.HostFromURL(c.url)}
+}
+
 func (c *Forgejo) oauth2Config(ctx context.Context) (*oauth2.Config, context.Context) {
 	return &oauth2.Config{
 			ClientID:     c.oAuthClientID,

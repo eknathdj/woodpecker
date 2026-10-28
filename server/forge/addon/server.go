@@ -53,6 +53,12 @@ func (s *RPCServer) URL(_ []byte, resp *string) error {
 	return nil
 }
 
+func (s *RPCServer) Config(_ []byte, resp *[]byte) error {
+	var err error
+	*resp, err = json.Marshal(s.Impl.Config())
+	return err
+}
+
 func (s *RPCServer) Teams(args []byte, resp *[]byte) error {
 	var a argumentsTeams
 	err := json.Unmarshal(args, &a)
