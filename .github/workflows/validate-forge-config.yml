@@ -1,0 +1,41 @@
+name: validate-forge-config
+on:
+  push:
+    branches: [ci-check/forge-config]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: dummy web
+        run: mkdir -p web/dist && echo test > web/dist/index.html
+      - name: build
+        run: go build ./...
+      - name: vet changed packages
+        run: go vet -tags test ./server/forge/... ./server/pipeline/... ./pipeline/frontend/metadata/...
+      - name: test changed packages
+        run: go test -race -tags test ./server/forge/... ./server/pipeline/... ./pipeline/frontend/metadata/... ./cmd/server/...
+      - name: test-server (same as upstream)
+        run: make test-server
+      - name: check-openapi (same as upstream)
+        run: |
+          make generate-openapi
+          git diff --stat
+          git diff --exit-code -- cmd/server/openapi
+      - name: mockery output for forge mock
+        run: |
+          go run github.com/vektra/mockery/v3@latest
+          git diff --stat
+          git diff --exit-code -- server/forge/mocks/mock_Forge.go
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.15.0
+          args: ./server/forge/... ./server/pipeline/... ./pipeline/frontend/metadata/...
